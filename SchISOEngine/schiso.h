@@ -3,10 +3,24 @@
 #define SCENE_OBJECT_BOX 0 
 #define SCENE_OBJECT_SPHERE 1
 
+#define OPERATION_UNION 0
+#define OPERATION_INTERSECTION 1
+#define OPERATION_AMINUSB 2 
+#define OPERATION_BMINUSA 3
+
+struct vector3;
 struct scene;
 struct sceneObject;
 struct geometry;
 struct transform;
+
+
+struct vector3
+{
+	float x;
+	float y;
+	float z;
+};
 
 struct scene
 {
@@ -33,4 +47,6 @@ struct geometry
 	int operationType;
 	geometry *operand;
 };
+
+
 
