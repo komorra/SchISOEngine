@@ -58,10 +58,7 @@ extern "C" __declspec(dllexport) sceneObject* __stdcall AddNewSceneObject(
 	auto g = new geometry();
 
 	g->operand = 0;
-	for (int la = 0; la < 16; la++)
-	{
-		g->trans.m[la] = (la % 5 == 0) ? 1 : 0;
-	}
+	matrixIdentity(g->trans);
 	g->x1 = xmin;
 	g->y1 = ymin;
 	g->z1 = zmin;
@@ -87,10 +84,7 @@ extern "C" __declspec(dllexport) geometry* __stdcall AddGeometryToObject(sceneOb
 {
 	auto g = new geometry();
 	g->operand = 0;
-	for (int la = 0; la < 16; la++)
-	{
-		g->trans.m[la] = (la % 5 == 0) ? 1 : 0;
-	}
+	matrixIdentity(g->trans);
 	g->x1 = xmin;
 	g->y1 = ymin;
 	g->z1 = zmin;
@@ -115,10 +109,7 @@ extern "C" __declspec(dllexport) geometry* __stdcall AddGeometryToGeometry(geome
 	{
 		added = new geometry();
 		added->operand = 0;
-		for (int la = 0; la < 16; la++)
-		{
-			added->trans.m[la] = (la % 5 == 0) ? 1 : 0;
-		}
+		matrixIdentity(added->trans);
 		added->x1 = xmin;
 		added->y1 = ymin;
 		added->z1 = zmin;
