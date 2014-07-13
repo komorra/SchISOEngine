@@ -49,4 +49,14 @@ struct geometry
 };
 
 
+void project(const vector3 &src, vector3 &result)
+{
+	const float xd = 0.86;
+	const float yd = 0.5;
+	const float zd = 0.5;
+	result.x = src.x * xd + src.y * yd;
+	result.y = src.x * xd + src.z * zd;
+}
+
+
 
