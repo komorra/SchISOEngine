@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchISOTest", "SchISOTest\SchISOTest.csproj", "{421FE8F9-A186-449B-B056-94C9B7E85B1B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072} = {4E6689E7-06A6-4F9D-91B6-11B28C497072}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchISOWrapper", "SchISOWrapper\SchISOWrapper.csproj", "{193353A4-1B21-4E1D-8C2B-47C25538D9E3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072} = {4E6689E7-06A6-4F9D-91B6-11B28C497072}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SchISOEngine", "SchISOEngine\SchISOEngine.vcxproj", "{4E6689E7-06A6-4F9D-91B6-11B28C497072}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{421FE8F9-A186-449B-B056-94C9B7E85B1B}.Release|Win32.ActiveCfg = Release|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{193353A4-1B21-4E1D-8C2B-47C25538D9E3}.Release|Win32.ActiveCfg = Release|Any CPU
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Debug|Win32.Build.0 = Debug|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Release|Any CPU.ActiveCfg = Release|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Release|Win32.ActiveCfg = Release|Win32
+		{4E6689E7-06A6-4F9D-91B6-11B28C497072}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
