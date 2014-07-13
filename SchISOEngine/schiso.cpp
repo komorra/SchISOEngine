@@ -1,16 +1,26 @@
 #include "schiso.h"
 
 extern "C" __declspec(dllexport) void __stdcall Render(
+	scene *scn,
 	float camx, float camy, float camz,
 	float srcx, float srcy, float srcw, float srch,
 	int dstw, int dsth, int dstPitch,
 	int* dstBuf)
 {
+	vector3 normal;
+	float depth;
+	int color = 0xff000000;
+	vector3 xy;
+
 	for (int lb = 0; lb < dsth; lb++)
 	{
 		for (int la = 0; la < dstw; la++)
 		{
 			dstBuf[la + lb * dstPitch / 4] = 0xff000000;
+			xy.v[0] = (la - 256) / 100.0;
+			xy.v[1] = (lb - 256) / 100.0;
+			sampleScene(scn, xy, color, normal, depth);
+			dstBuf[la + lb * dstPitch / 4] = color;
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace SchISOWrapper
         public const string LibPath = "../../../Release/SchISOEngine.dll";
 #endif
         [DllImport(LibPath)]
-        public static extern void Render(
+        public static extern void Render(IntPtr scene,
             float camx, float camy, float camz,
             float srcx, float srcy, float srcw, float srch,
             int dstw, int dsth, int dstPitch,

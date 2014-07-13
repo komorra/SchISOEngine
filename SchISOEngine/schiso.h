@@ -1,4 +1,5 @@
 #include <vector>
+#include <cmath>
 
 #define SCENE_OBJECT_BOX 0 
 #define SCENE_OBJECT_SPHERE 1
@@ -18,6 +19,12 @@ struct matrix;
 struct vector3
 {
 	float v[3];
+};
+
+struct ray
+{
+	vector3 org;
+	vector3 dir;
 };
 
 struct scene
@@ -92,6 +99,20 @@ void transformNormal(const matrix& transform, const vector3& src, vector3& resul
 	result.v[2] = res[2];
 }
 
+float length(const vector3& v)
+{
+	return sqrt(v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2]);
+}
+
+void normalizeVector(vector3& v)
+{	
+	float len = length(v);
+	for (int la = 0; la < 3; la++)
+	{
+		v.v[la] /= len;
+	}
+}
+
 void matrixIdentity(matrix& transform)
 {
 	for (int la = 0; la < 16; la++)
@@ -127,4 +148,50 @@ void matrixMul(const matrix& left, const matrix& right, matrix& result)
 			}
 		}
 	}
+}
+
+void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, float& depth)
+{
+
+}
+
+bool rayRectangleIntersection(const ray& ray, int aabbSide, const vector3& min, const vector3& max, vector3& outPos, vector3& outNrm)
+{
+	const float p[6] = { min.v[0], min.v[1], min.v[2], max.v[0], max.v[1], max.v[2] };
+	
+	int i0 = aabbSide % 3;
+	int i1 = (aabbSide + 1) % 3;
+	int i2 = (aabbSide + 2) % 3;
+
+	float pcur = p[aabbSide] - ray.org.v[i0];
+
+	float s = pcur / ray.dir.v[i0];
+	
+	float u = ray.dir.v[i1] * s;
+	float v = ray.dir.v[i2] * s;
+
+	u += ray.org.v[i1];
+	v += ray.org.v[i2];
+
+	outNrm.v[i0] = (aabbSide >= 2) ? 1 : -1;
+	outNrm.v[i1] = 0;
+	outNrm.v[i2] = 0;
+
+	outPos.v[i0] = p[aabbSide];
+	outPos.v[i1] = u;
+	outPos.v[i2] = v;
+
+	return (u >= p[i1]) && (u <= p[i1 + 3]) && (v >= p[i2]) && (v <= p[i2 + 3]);
+}
+
+bool rayAABBIntersection(const ray& ray, const vector3& min, const vector3& max, vector3& outPos, vector3& outNrm)
+{
+	for (int la = 0; la < 6; la++)
+	{
+		if (rayRectangleIntersection(ray, la, min, max, outPos, outNrm))
+		{
+			return true;
+		}
+	}
+	return false;
 }
