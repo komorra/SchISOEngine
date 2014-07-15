@@ -53,6 +53,18 @@ struct geometry
 	geometry *operand;
 };
 
+int normalToColor(const vector3& nrm)
+{
+	int r = (nrm.v[0] + 1.0) / 2.0 * 255.0;
+	int g = (nrm.v[1] + 1.0) / 2.0 * 255.0;
+	int b = (nrm.v[2] + 1.0) / 2.0 * 255.0;
+
+	g <<= 8;
+	b <<= 16;
+
+	return 0xff000000 | (r & 0x000000ff) | (g & 0x0000ff00) | (b & 0x00ff0000);
+}
+
 
 void project(const vector3 &src, vector3 &result)
 {
@@ -102,6 +114,16 @@ void transformNormal(const matrix& transform, const vector3& src, vector3& resul
 float length(const vector3& v)
 {
 	return sqrt(v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2]);
+}
+
+float distance(const vector3& a, const vector3& b)
+{
+	vector3 dif;
+	for (int la = 0; la < 3; la++)
+	{
+		dif.v[la] = a.v[la] - b.v[la];
+	}
+	return length(dif);
 }
 
 void normalizeVector(vector3& v)
@@ -187,25 +209,44 @@ bool rayRectangleIntersection(const ray& ray, int aabbSide, const vector3& min, 
 
 bool rayAABBIntersection(const ray& ray, const vector3& min, const vector3& max, vector3& outPos, vector3& outNrm)
 {
+	vector3 tpos;
+	vector3 tnrm;
+	float dist = 100000000;
+	bool ret = false;
+
 	for (int la = 0; la < 6; la++)
 	{		
-		if (rayRectangleIntersection(ray, la, min, max, outPos, outNrm))
+		if (rayRectangleIntersection(ray, la, min, max, tpos, tnrm))
 		{
-			return true;
+			//return true;
+			float d = distance(ray.org, tpos);
+			if (d < dist)
+			{
+				dist = d;
+				for (int la = 0; la < 3; la++)
+				{
+					outNrm.v[la] = tnrm.v[la];
+					outPos.v[la] = tpos.v[la];
+				}
+				ret = true;
+			}
 		}
 	}
-	return false;
+	return ret;
 }
 
 void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, float& depth)
 {
 	ray r;
-	r.org.v[0] = xy.v[0];
-	r.org.v[1] = xy.v[1];
-	r.org.v[2] = 0;
 
-	r.dir.v[0] = 0;
-	r.dir.v[1] = 0;
+	//project(xy, r.org);
+	r.org.v[0] = xy.v[0] + 5;
+	r.org.v[1] = xy.v[1] - 5;
+	r.org.v[2] = 0;
+	//r.org.v[2] = ;// xy.v[0] + xy.v[1];
+
+	r.dir.v[0] = -0.5;
+	r.dir.v[1] = 0.5;
 	r.dir.v[2] = 1;
 
 	normalizeVector(r.dir);
@@ -227,8 +268,9 @@ void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, flo
 
 		if (rayAABBIntersection(r, min, max, pos, nrm))
 		{
-			color = 0xffffffff;
+			color = normalToColor(nrm);
 			return;
 		}
 	}
 }
+
