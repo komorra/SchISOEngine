@@ -150,13 +150,10 @@ void matrixMul(const matrix& left, const matrix& right, matrix& result)
 	}
 }
 
-void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, float& depth)
-{
 
-}
 
 bool rayRectangleIntersection(const ray& ray, int aabbSide, const vector3& min, const vector3& max, vector3& outPos, vector3& outNrm)
-{
+{	
 	const float p[6] = { min.v[0], min.v[1], min.v[2], max.v[0], max.v[1], max.v[2] };
 	
 	int i0 = aabbSide % 3;
@@ -173,6 +170,9 @@ bool rayRectangleIntersection(const ray& ray, int aabbSide, const vector3& min, 
 	u += ray.org.v[i1];
 	v += ray.org.v[i2];
 
+	//v += 115;
+	//u += 
+
 	outNrm.v[i0] = (aabbSide >= 2) ? 1 : -1;
 	outNrm.v[i1] = 0;
 	outNrm.v[i2] = 0;
@@ -181,17 +181,54 @@ bool rayRectangleIntersection(const ray& ray, int aabbSide, const vector3& min, 
 	outPos.v[i1] = u;
 	outPos.v[i2] = v;
 
-	return (u >= p[i1]) && (u <= p[i1 + 3]) && (v >= p[i2]) && (v <= p[i2 + 3]);
+	return ((u >= p[i1]) && (u <= p[i1 + 3]) && (v >= p[i2]) && (v <= p[i2 + 3]));
+	
 }
 
 bool rayAABBIntersection(const ray& ray, const vector3& min, const vector3& max, vector3& outPos, vector3& outNrm)
 {
 	for (int la = 0; la < 6; la++)
-	{
+	{		
 		if (rayRectangleIntersection(ray, la, min, max, outPos, outNrm))
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
+void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, float& depth)
+{
+	ray r;
+	r.org.v[0] = xy.v[0];
+	r.org.v[1] = xy.v[1];
+	r.org.v[2] = 0;
+
+	r.dir.v[0] = 0;
+	r.dir.v[1] = 0;
+	r.dir.v[2] = 1;
+
+	normalizeVector(r.dir);
+
+	vector3 min;
+	vector3 max;
+	vector3 pos;
+	vector3 nrm;
+	color = 0xff000000;
+	for (auto it = scn->sceneObjects.begin(); it != scn->sceneObjects.end(); it++)
+	{
+		min.v[0] = (*it)->geometriesUnion[0]->x1;
+		min.v[1] = (*it)->geometriesUnion[0]->y1;
+		min.v[2] = (*it)->geometriesUnion[0]->z1;
+
+		max.v[0] = (*it)->geometriesUnion[0]->x2;
+		max.v[1] = (*it)->geometriesUnion[0]->y2;
+		max.v[2] = (*it)->geometriesUnion[0]->z2;
+
+		if (rayAABBIntersection(r, min, max, pos, nrm))
+		{
+			color = 0xffffffff;
+			return;
+		}
+	}
 }

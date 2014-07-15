@@ -27,7 +27,7 @@ namespace SchISOTest
             var bd = bmp.LockBits(new Rectangle(0,0,bmp.Width,bmp.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             var scene = SchISO.CreateScene();
-            var box = SchISO.AddNewSceneObject(scene, SchISO.ObjectTypeBox, 0, 0, 0, 5, 5, 5);
+            var box = SchISO.AddNewSceneObject(scene, SchISO.ObjectTypeBox, -1, -1, 8, 1, 1, 10);
             SchISO.Render(scene, 0, 0, 0, -100, -100, 200, 200, bmp.Width, bmp.Height, bd.Stride, bd.Scan0);
             SchISO.DestroyScene(scene);
 

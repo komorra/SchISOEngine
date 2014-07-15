@@ -15,10 +15,10 @@ extern "C" __declspec(dllexport) void __stdcall Render(
 	for (int lb = 0; lb < dsth; lb++)
 	{
 		for (int la = 0; la < dstw; la++)
-		{
+		{			
 			dstBuf[la + lb * dstPitch / 4] = 0xff000000;
-			xy.v[0] = (la - 256) / 100.0;
-			xy.v[1] = (lb - 256) / 100.0;
+			xy.v[0] = (la - 256) / 1.0;
+			xy.v[1] = (lb - 256) / 1.0;
 			sampleScene(scn, xy, color, normal, depth);
 			dstBuf[la + lb * dstPitch / 4] = color;
 		}
