@@ -131,3 +131,11 @@ extern "C" __declspec(dllexport) geometry* __stdcall AddGeometryToGeometry(geome
 	g->operationType = operationType;
 	return added;
 }
+
+extern "C" __declspec(dllexport) void __stdcall SetGeometryTransform(geometry* g, float* transform)
+{
+	for(int la=0;la<16;la++)
+	{
+		g->trans.m[la] = transform[la];
+	}
+}

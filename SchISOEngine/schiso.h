@@ -100,7 +100,7 @@ void project(const vector3 &src, vector3 &result)
 	result.v[1] = src.v[0] * xd + src.v[2] * zd;
 }
 
-void transformCoordinate(const matrix& transform, const vector3& src, vector3& result)
+void transformCoordinate(const matrix& transform, vector3& src)
 {
 	const float m[4] = { src.v[0], src.v[1], src.v[2], 1 };
 	float res[4] = { 0, 0, 0, 0 };	
@@ -109,16 +109,16 @@ void transformCoordinate(const matrix& transform, const vector3& src, vector3& r
 	{
 		for (int col = 0; col < 4; col++)
 		{			
-			res[col] += transform.m[col + row * 4] * m[col];
+			res[col] += transform.m[col + row * 4] * m[row];
 		}
 	}
 
-	result.v[0] = res[0];
-	result.v[1] = res[1];
-	result.v[2] = res[2];
+	src.v[0] = res[0];
+	src.v[1] = res[1];
+	src.v[2] = res[2];
 }
 
-void transformNormal(const matrix& transform, const vector3& src, vector3& result)
+void transformNormal(const matrix& transform, vector3& src)
 {
 	const float m[4] = { src.v[0], src.v[1], src.v[2], 0 };
 	float res[4] = { 0, 0, 0, 0 };
@@ -127,13 +127,13 @@ void transformNormal(const matrix& transform, const vector3& src, vector3& resul
 	{
 		for (int col = 0; col < 4; col++)
 		{
-			res[col] += transform.m[col + row * 4] * m[col];
+			res[col] += transform.m[col + row * 4] * m[row];
 		}
 	}
 
-	result.v[0] = res[0];
-	result.v[1] = res[1];
-	result.v[2] = res[2];
+	src.v[0] = res[0];
+	src.v[1] = res[1];
+	src.v[2] = res[2];
 }
 
 float length(const vector3& v)
@@ -349,11 +349,6 @@ void matrixScale(matrix& transform, float x, float y, float z)
 	transform.m[2*4 + 2] = z;
 }
 
-void matrixInverse(matrix& transform)
-{
-
-}
-
 void matrixMul(const matrix& left, const matrix& right, matrix& result)
 {
 	matrixZero(result);
@@ -463,6 +458,13 @@ void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, flo
 		max.v[0] = (*it)->geometriesUnion[0]->x2;
 		max.v[1] = (*it)->geometriesUnion[0]->y2;
 		max.v[2] = (*it)->geometriesUnion[0]->z2;
+
+		matrix t;
+		for(int la=0;la<16;la++)t.m[la] = (*it)->geometriesUnion[0]->trans.m[la];
+
+		matrixInvert(t);
+		transformCoordinate(t, r.org);
+		transformNormal(t, r.dir);
 
 		if (rayAABBIntersection(r, min, max, pos, nrm))
 		{

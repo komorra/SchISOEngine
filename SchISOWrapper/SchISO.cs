@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using SharpDX;
 
 namespace SchISOWrapper
 {
@@ -56,5 +57,8 @@ namespace SchISOWrapper
             int objectType,
             float xmin, float ymin, float zmin,
             float xmax, float ymax, float zmax);
+
+        [DllImport(LibPath)]
+        public static extern void SetGeometryTransform(IntPtr geometry, ref Matrix transform);
     }
 }
