@@ -15,6 +15,8 @@ struct sceneObject;
 struct geometry;
 struct matrix;
 
+void normalizeVector(vector3& v);
+
 
 struct vector3
 {
@@ -65,6 +67,29 @@ int normalToColor(const vector3& nrm)
 	return 0xff000000 | (r & 0x000000ff) | (g & 0x0000ff00) | (b & 0x00ff0000);
 }
 
+float dot(const vector3& a, const vector3& b)
+{
+	float d = 0;
+	for(int la=0;la<3;la++)
+	{
+		d += a.v[la] * b.v[la];
+	}
+	return d;
+}
+
+int normalToShade(const vector3& nrm)
+{
+	vector3 sun;
+	for(int la=0;la<3;la++)
+	{
+		sun.v[la] = -la-1;
+	}
+	sun.v[2]*=-1.0;
+	normalizeVector(sun);
+	float d = dot(nrm,sun);
+	int sh = (d+1.0)/2.0*255.0;
+	return 0xff000000 | (sh) | (sh << 8) | (sh << 16);
+}
 
 void project(const vector3 &src, vector3 &result)
 {
@@ -148,6 +173,32 @@ void matrixZero(matrix& transform)
 	for (int la = 0; la < 16; la++)
 	{
 		transform.m[la] = 0;
+	}
+}
+
+void matrixRotation(matrix& transform, int axis, float angle)
+{
+	matrixIdentity(transform);
+	if(axis==0)
+	{
+		transform.m[1*4 + 1] = cos(angle);
+		transform.m[2*4 + 1] = -sin(angle);
+		transform.m[1*4 + 2] = sin(angle);
+		transform.m[2*4 + 2] = cos(angle);
+	}
+	else if(axis==1)
+	{
+		transform.m[0*4 + 0] = cos(angle);
+		transform.m[2*4 + 0] = sin(angle);
+		transform.m[0*4 + 2] = -sin(angle);
+		transform.m[2*4 + 2] = cos(angle);
+	}
+	else if(axis==2)
+	{
+		transform.m[0*4 + 0] = cos(angle);
+		transform.m[1*4 + 0] = -sin(angle);
+		transform.m[0*4 + 1] = sin(angle);
+		transform.m[1*4 + 1] = cos(angle);
 	}
 }
 
@@ -268,7 +319,7 @@ void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, flo
 
 		if (rayAABBIntersection(r, min, max, pos, nrm))
 		{
-			color = normalToColor(nrm);
+			color = normalToShade(nrm);
 			return;
 		}
 	}
