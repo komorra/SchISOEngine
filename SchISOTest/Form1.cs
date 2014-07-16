@@ -18,6 +18,7 @@ namespace SchISOTest
         Bitmap bmp = new Bitmap(320, 240);
         private IntPtr scene = IntPtr.Zero;
         private IntPtr geom;
+        private IntPtr geom2;
         private DateTime start = DateTime.Now;
 
         public Form1()
@@ -36,9 +37,13 @@ namespace SchISOTest
                 watch.Start();
 
                 var bd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                Matrix trans = Matrix.RotationY((float) elapsed.TotalSeconds)*Matrix.LookAtLH(-Vector3.One * 10, Vector3.Zero, Vector3.Up);
                 
+                Matrix trans = Matrix.RotationY((float) elapsed.TotalSeconds)*Matrix.LookAtLH(-Vector3.One * 10, Vector3.Zero, Vector3.Up);                
                 SchISO.SetGeometryTransform(geom, ref trans);
+
+                var mat = Matrix.Translation(1,1,1) * Matrix.RotationY((float) elapsed.TotalSeconds) * Matrix.LookAtLH(-Vector3.One * 10, Vector3.Zero, Vector3.Up);
+                SchISO.SetGeometryTransform(geom2, ref mat);
+
                 SchISO.Render(scene, 0, 0, 0, -100, -100, 200, 200, bmp.Width, bmp.Height, bd.Stride, bd.Scan0);
                 bmp.UnlockBits(bd);
                 pictureBox1.Image = bmp;
@@ -51,7 +56,10 @@ namespace SchISOTest
         {           
             scene = SchISO.CreateScene();
             var box = SchISO.AddNewSceneObject(scene, SchISO.ObjectTypeBox, -1, -1, -1, 1, 1, 1);
-            //geom = SchISO.GetGeometry(box, 0);
+            var oper = SchISO.GetSceneObjectOperation(box);
+            geom = SchISO.GetSubGeometry(oper, 0);
+            geom2 = SchISO.CreateGeometry(oper, 1, SchISO.ObjectTypeBox, -1, -1, -1, 1, 1, 1);            
+            SchISO.UpdateOperation(oper, SchISO.OperationAMinusB);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

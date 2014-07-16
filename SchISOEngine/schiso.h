@@ -63,6 +63,14 @@ struct csgOperation
 	csgOperation* operB;
 };
 
+void v3copy(const vector3& a, vector3& b)
+{
+	for(int la=0;la<3;la++)
+	{
+		b.v[la] = a.v[la];
+	}
+}
+
 int normalToColor(const vector3& nrm)
 {
 	int r = (nrm.v[0] + 1.0) / 2.0 * 255.0;
@@ -436,9 +444,145 @@ bool rayAABBIntersection(const ray& ray, const vector3& min, const vector3& max,
 	return ret;
 }
 
-void renderOperation(const csgOperation* oper, const ray& r, vector3& pos, vector3& nrm)
+bool rayAABBIntersectionFar(const ray& ray, const vector3& min, const vector3& max, vector3& outPos, vector3& outNrm)
 {
+	vector3 tpos;
+	vector3 tnrm;
+	float dist = 0;
+	bool ret = false;
+
+	for (int la = 0; la < 6; la++)
+	{		
+		if (rayRectangleIntersection(ray, la, min, max, tpos, tnrm))
+		{
+			//return true;
+			float d = distance(ray.org, tpos);
+			if (d > dist)
+			{
+				dist = d;
+				for (int la = 0; la < 3; la++)
+				{
+					outNrm.v[la] = tnrm.v[la];
+					outPos.v[la] = tpos.v[la];
+				}
+				ret = true;
+			}
+		}
+	}
+	return ret;
+}
+
+bool renderOperation(const csgOperation* oper, const ray& r, vector3& pos, vector3& nrm)
+{
+	vector3 tposa;
+	vector3 tnrma;
+	matrix tmata;
+	bool intera = false;
+	ray trA = ray(r);
+	vector3 amin;
+	vector3 amax;
+	for(int la=0;la<3;la++)
+	{
+		tposa.v[la] = 10000000000;
+	}
+	amin.v[0] = oper->geomA->x1;
+	amin.v[1] = oper->geomA->y1;
+	amin.v[2] = oper->geomA->z1;
+	amax.v[0] = oper->geomA->x2;
+	amax.v[1] = oper->geomA->y2;
+	amax.v[2] = oper->geomA->z2;
+
+	for(int la=0;la<16;la++)tmata.m[la] = oper->geomA->trans.m[la];
+	matrixInvert(tmata);
+	transformCoordinate(tmata, trA.org);
+	transformNormal(tmata, trA.dir);
+	intera = rayAABBIntersection(trA, amin, amax, tposa, tnrma);
 	
+	vector3 tposb;
+	vector3 tnrmb;
+	matrix tmatb;
+	bool interb = false;
+	ray trB = ray(r);
+	vector3 bmin;
+	vector3 bmax;
+
+	for(int la=0;la<3;la++)
+	{
+		tposb.v[la] = 10000000000;
+	}
+
+	if(oper->geomB != 0)
+	{
+		bmin.v[0] = oper->geomB->x1;
+		bmin.v[1] = oper->geomB->y1;
+		bmin.v[2] = oper->geomB->z1;
+		bmax.v[0] = oper->geomB->x2;
+		bmax.v[1] = oper->geomB->y2;
+		bmax.v[2] = oper->geomB->z2;
+
+		for(int la=0;la<16;la++)tmatb.m[la] = oper->geomB->trans.m[la];
+		matrixInvert(tmatb);
+		transformCoordinate(tmatb, trB.org);
+		transformNormal(tmatb, trB.dir);
+		if(oper->operationType == OPERATION_AMINUSB)
+		{
+			interb = rayAABBIntersectionFar(trB, bmin, bmax, tposb, tnrmb);
+		}
+		else
+		{
+			interb = rayAABBIntersection(trB, bmin, bmax, tposb, tnrmb);
+		}
+	}
+
+	if(oper->operationType == OPERATION_UNION)
+	{
+		if(interb == false)
+		{
+			v3copy(tposa,pos);
+			v3copy(tnrma,nrm);
+			return intera;
+		}
+		else
+		{
+			if((distance(tposa, trA.org) < distance(tposb, trB.org)))
+			{
+				v3copy(tposa,pos);
+				v3copy(tnrma,nrm);
+				return intera;
+			}
+			else
+			{
+				v3copy(tposb,pos);
+				v3copy(tnrmb,nrm);
+				return interb;
+			}
+		}
+	}
+	else if(oper->operationType == OPERATION_AMINUSB)
+	{
+		if(interb == false)
+		{
+			v3copy(tposa,pos);
+			v3copy(tnrma,nrm);
+			return intera;
+		}
+		else if(intera)
+		{
+			if(distance(tposb, trB.org) > distance(tposa, trA.org))
+			{
+				v3copy(tposb,pos);
+				v3copy(tnrmb,nrm);
+				for(int la=0;la<3;la++) nrm.v[la] *= -1;
+			}
+			else
+			{
+				v3copy(tposa,pos);
+				v3copy(tnrma,nrm);
+			}
+			return true;
+		}
+		return false;
+	}
 }
 
 void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, float& depth)
@@ -464,7 +608,11 @@ void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, flo
 	color = 0xff000000;
 	for (auto it = scn->sceneObjects.begin(); it != scn->sceneObjects.end(); it++)
 	{
-		renderOperation((*it)->operation, r, pos, nrm);
+		if(renderOperation((*it)->operation, r, pos, nrm))
+		{
+			color = normalToShade(nrm);
+			return;
+		}
 		/*min.v[0] = (*it)->geometriesUnion[0]->x1;
 		min.v[1] = (*it)->geometriesUnion[0]->y1;
 		min.v[2] = (*it)->geometriesUnion[0]->z1;
