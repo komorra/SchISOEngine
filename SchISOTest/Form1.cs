@@ -15,7 +15,7 @@ namespace SchISOTest
 {
     public partial class Form1 : Form
     {
-        Bitmap bmp = new Bitmap(512, 512);
+        Bitmap bmp = new Bitmap(320, 240);
         private IntPtr scene = IntPtr.Zero;
         private IntPtr geom;
         private DateTime start = DateTime.Now;
@@ -36,7 +36,7 @@ namespace SchISOTest
                 watch.Start();
 
                 var bd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                Matrix trans = Matrix.RotationY((float) elapsed.TotalSeconds)*Matrix.Translation(0, 0, 5);
+                Matrix trans = Matrix.RotationY((float) elapsed.TotalSeconds)*Matrix.LookAtLH(-Vector3.One * 10, Vector3.Zero, Vector3.Up);
                 
                 SchISO.SetGeometryTransform(geom, ref trans);
                 SchISO.Render(scene, 0, 0, 0, -100, -100, 200, 200, bmp.Width, bmp.Height, bd.Stride, bd.Scan0);
@@ -51,7 +51,7 @@ namespace SchISOTest
         {           
             scene = SchISO.CreateScene();
             var box = SchISO.AddNewSceneObject(scene, SchISO.ObjectTypeBox, -1, -1, -1, 1, 1, 1);
-            geom = SchISO.GetGeometry(box, 0);
+            //geom = SchISO.GetGeometry(box, 0);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

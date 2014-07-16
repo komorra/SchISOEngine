@@ -17,8 +17,8 @@ extern "C" __declspec(dllexport) void __stdcall Render(
 		for (int la = 0; la < dstw; la++)
 		{			
 			dstBuf[la + lb * dstPitch / 4] = 0xff000000;
-			xy.v[0] = (la - 256) / 50.0;
-			xy.v[1] = (lb - 256) / 50.0;
+			xy.v[0] = (la - 160) / 50.0;
+			xy.v[1] = (lb - 120) / 50.0;
 			sampleScene(scn, xy, color, normal, depth);
 			dstBuf[la + lb * dstPitch / 4] = color;
 		}
@@ -37,22 +37,8 @@ extern "C" __declspec(dllexport) void __stdcall DestroyScene(scene* scn)
 {
 	for (auto it = scn->sceneObjects.begin(); it != scn->sceneObjects.end(); it++)
 	{
-		for (auto g = (*it)->geometriesUnion.begin(); g != (*it)->geometriesUnion.end(); g++)
-		{
-			auto inners = std::vector<geometry*>();
-
-			auto gptr = *g;
-			do
-			{
-				inners.push_back(gptr);
-				gptr = gptr->operand;
-			} while (gptr != 0);
-
-			for (auto i = inners.begin(); i != inners.end(); i++)
-			{
-				delete *i;
-			}
-		}
+		csgOperation* op = (*it)->operation;
+		destroyOperation(op);
 		delete *it;
 	}
 	delete scn;
@@ -66,8 +52,7 @@ extern "C" __declspec(dllexport) sceneObject* __stdcall AddNewSceneObject(
 {
 	auto so = new sceneObject();
 	auto g = new geometry();
-
-	g->operand = 0;
+	
 	matrixIdentity(g->trans);
 	g->x1 = xmin;
 	g->y1 = ymin;
@@ -77,23 +62,42 @@ extern "C" __declspec(dllexport) sceneObject* __stdcall AddNewSceneObject(
 	g->z2 = zmax;
 	g->objectType = objectType;
 
-	so->geometriesUnion.push_back(g);
+	so->operation = new csgOperation();
+	so->operation->operationType = OPERATION_UNION;
+	so->operation->geomA = g;
+	so->operation->geomB = 0;
+	so->operation->operA = 0;
+	so->operation->operB = 0;
 	scn->sceneObjects.push_back(so);
 	return so;
 }
 
-extern "C" __declspec(dllexport) geometry* __stdcall GetGeometry(sceneObject* obj, int index)
+extern "C" __declspec(dllexport) csgOperation* __stdcall GetSceneObjectOperation(sceneObject* obj)
 {
-	return obj->geometriesUnion[index];
+	return obj->operation;
 }
 
-extern "C" __declspec(dllexport) geometry* __stdcall AddGeometryToObject(sceneObject* obj,
+extern "C" __declspec(dllexport) csgOperation* __stdcall GetSubOperation(csgOperation* oper, int index)
+{
+	if(index == 0) return oper->operA;
+	if(index == 1) return oper->operB;
+	return 0;
+}
+
+extern "C" __declspec(dllexport) geometry* __stdcall GetSubGeometry(csgOperation* oper, int index)
+{
+	if(index == 0) return oper->geomA;
+	if(index == 1) return oper->geomB;
+	return 0;
+}
+
+extern "C" __declspec(dllexport) geometry* __stdcall CreateGeometry(csgOperation* oper, int index,
 	int objectType,
 	float xmin, float ymin, float zmin,
 	float xmax, float ymax, float zmax)
 {
 	auto g = new geometry();
-	g->operand = 0;
+	
 	matrixIdentity(g->trans);
 	g->x1 = xmin;
 	g->y1 = ymin;
@@ -103,33 +107,15 @@ extern "C" __declspec(dllexport) geometry* __stdcall AddGeometryToObject(sceneOb
 	g->z2 = zmax;
 	g->objectType = objectType;
 
-	obj->geometriesUnion.push_back(g);
+	if(index == 0 && oper->geomA == 0) oper->geomA = g;
+	if(index == 1 && oper->geomB == 0) oper->geomB = g;
 
 	return g;
 }
 
-extern "C" __declspec(dllexport) geometry* __stdcall AddGeometryToGeometry(geometry* g,
-	int operationType,
-	int objectType,
-	float xmin, float ymin, float zmin,
-	float xmax, float ymax, float zmax)
+extern "C" __declspec(dllexport) void __stdcall UpdateOperation(csgOperation* oper, int operationType)
 {
-	geometry* added = 0;
-	if (g->operand == 0)
-	{
-		added = new geometry();
-		added->operand = 0;
-		matrixIdentity(added->trans);
-		added->x1 = xmin;
-		added->y1 = ymin;
-		added->z1 = zmin;
-		added->x2 = xmax;
-		added->y2 = ymax;
-		added->z2 = zmax;
-		added->objectType = objectType;
-	}
-	g->operationType = operationType;
-	return added;
+	oper->operationType = operationType;
 }
 
 extern "C" __declspec(dllexport) void __stdcall SetGeometryTransform(geometry* g, float* transform)

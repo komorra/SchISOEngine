@@ -40,25 +40,27 @@ namespace SchISOWrapper
         public static extern IntPtr AddNewSceneObject(IntPtr scenePtr,
             int objectType,
             float xmin, float ymin, float zmin,
-            float xmax, float ymax, float zmax);
-
-        [DllImport(LibPath)]
-        public static extern IntPtr GetGeometry(IntPtr sceneObj, int index);
-
-        [DllImport(LibPath)]
-        public static extern IntPtr AddGeometryToObject(IntPtr sceneObj,
-            int objectType,
-            float xmin, float ymin, float zmin,
-            float xmax, float ymax, float zmax);
-
-        [DllImport(LibPath)]
-        public static extern IntPtr AddGeometryToGeometry(IntPtr geometry,
-            int operationType,
-            int objectType,
-            float xmin, float ymin, float zmin,
-            float xmax, float ymax, float zmax);
+            float xmax, float ymax, float zmax);        
 
         [DllImport(LibPath)]
         public static extern void SetGeometryTransform(IntPtr geometry, ref Matrix transform);
+
+        [DllImport(LibPath)]
+        public static extern IntPtr GetSceneObjectOperation(IntPtr sceneObj);
+
+        [DllImport(LibPath)]
+        public static extern IntPtr GetSubOperation(IntPtr operation, int index);
+
+        [DllImport(LibPath)]
+        public static extern IntPtr GetSubGeometry(IntPtr operation, int index);
+
+        [DllImport(LibPath)]
+        public static extern IntPtr CreateGeometry(IntPtr operation, int index,
+            int objectType,
+            float xmin, float ymin, float zmin,
+            float xmax, float ymax, float zmax);
+
+        [DllImport(LibPath)]
+        public static extern void UpdateOperation(IntPtr operation, int operationType);        
     }
 }

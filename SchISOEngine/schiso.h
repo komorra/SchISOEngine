@@ -14,6 +14,7 @@ struct scene;
 struct sceneObject;
 struct geometry;
 struct matrix;
+struct csgOperation;
 
 void normalizeVector(vector3& v);
 
@@ -37,7 +38,7 @@ struct scene
 
 struct sceneObject
 {	
-	std::vector<geometry*> geometriesUnion;
+	csgOperation* operation;
 };
 
 struct matrix
@@ -50,9 +51,16 @@ struct geometry
 	int objectType;
 	float x1, y1, z1;
 	float x2, y2, z2;
-	matrix trans;
+	matrix trans;	
+};
+
+struct csgOperation
+{
 	int operationType;
-	geometry *operand;
+	geometry* geomA;
+	geometry* geomB;
+	csgOperation* operA;
+	csgOperation* operB;
 };
 
 int normalToColor(const vector3& nrm)
@@ -428,18 +436,23 @@ bool rayAABBIntersection(const ray& ray, const vector3& min, const vector3& max,
 	return ret;
 }
 
+void renderOperation(const csgOperation* oper, const ray& r, vector3& pos, vector3& nrm)
+{
+	
+}
+
 void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, float& depth)
 {
 	ray r;
 
 	//project(xy, r.org);
-	r.org.v[0] = xy.v[0] + 5;
-	r.org.v[1] = xy.v[1] - 5;
+	r.org.v[0] = xy.v[0];// + 5;
+	r.org.v[1] = xy.v[1];// - 5;
 	r.org.v[2] = 0;
 	//r.org.v[2] = ;// xy.v[0] + xy.v[1];
 
-	r.dir.v[0] = -0.5;
-	r.dir.v[1] = 0.5;
+	r.dir.v[0] = 0;//-0.5;
+	r.dir.v[1] = 0;//0.5;
 	r.dir.v[2] = 1;
 
 	normalizeVector(r.dir);
@@ -451,7 +464,8 @@ void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, flo
 	color = 0xff000000;
 	for (auto it = scn->sceneObjects.begin(); it != scn->sceneObjects.end(); it++)
 	{
-		min.v[0] = (*it)->geometriesUnion[0]->x1;
+		renderOperation((*it)->operation, r, pos, nrm);
+		/*min.v[0] = (*it)->geometriesUnion[0]->x1;
 		min.v[1] = (*it)->geometriesUnion[0]->y1;
 		min.v[2] = (*it)->geometriesUnion[0]->z1;
 
@@ -470,7 +484,22 @@ void sampleScene(scene* scn, const vector3& xy, int& color, vector3& normal, flo
 		{
 			color = normalToShade(nrm);
 			return;
-		}
+		}*/
 	}
+}
+
+void destroyOperation(csgOperation* op)
+{
+	if(op->geomA!=0) delete op->geomA;
+	if(op->geomB!=0) delete op->geomB;
+	if(op->operA)
+	{
+		destroyOperation(op->operA);		
+	}
+	if(op->operB)
+	{
+		destroyOperation(op->operB);			
+	}
+	delete op;
 }
 
